@@ -7,12 +7,10 @@ import re
 class TrieError(Exception):
     pass
     
+class Trie:
 """
 A Trie class for doing dictionary lookup of strings.
-TODO:
 """
-class Trie:
-
     @staticmethod
     def trim_whitespace(st):
         st = re.sub(r'^\s+', '', st)
