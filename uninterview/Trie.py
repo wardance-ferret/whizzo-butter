@@ -8,9 +8,9 @@ class TrieError(Exception):
     pass
     
 class Trie:
-"""
-A Trie class for doing dictionary lookup of strings.
-"""
+    """
+    A Trie class for doing dictionary lookup of strings.
+    """
     @staticmethod
     def trim_whitespace(st):
         st = re.sub(r'^\s+', '', st)
