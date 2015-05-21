@@ -3,9 +3,24 @@
 import logging
 import re
 
-
 class TrieError(Exception):
     pass
+
+class TrieNode:
+    """
+    The node class contained by Trie.
+    
+    Formerly, the Trie class had a Python "attribute" TrieNode.  This served as 
+    an inner class for the Trie's nodes.  I couldn't pickle those data structures
+    however, so I simply moved the attribute out of the Trie class and defined it 
+    as a sister class in the same file 
+    (I say file as I haven't defined a Python module strictly.)"""
+    def __init__(self, is_word, node_map):
+        """
+        
+        """
+        self.is_word=is_word
+        self.node_map=node_map    
     
 class Trie:
     """
@@ -21,27 +36,21 @@ class Trie:
         st = re.sub(r'\s+', ' ', st)
         return st
         
-    #The Trie class defines an inner class TrieNode for the Trie's nodes.
-    class TrieNode:
-        def __init__(self, is_word, node_map):
-            self.is_word=is_word
-            self.node_map=node_map    
-      
     def __init__(self):
-            self.root=Trie.TrieNode(False, {' ':Trie.TrieNode(False, {})})
+            self.root=TrieNode(False, {' ':TrieNode(False, {})})
             logging.debug("trie created, has one empty node.")
             logging.debug("root points to a "+str(self.root))
-            self.num_nodes = 1
+            self._num_nodes = 1
             
             
     #Get the number of TrieNodes in the Trie        
-    def _num_nodes(self):
-        return self.num_nodes
+    def num_nodes(self):
+        return self._num_nodes
     
     #Explore the nodes in a depth-first order.  Visit the parent of each node before its children. Concatenate a new digit to an existing prefix at each visit, completing a prefix when the node has value is_word=true.   When the prefix is complete, print it.  Prefixes will print in lexicographic order e.g. Udo, Univ, University, Uno.
     #In breadthfirst_visit, I use a queue instead of a stack to sort first by ascending string length, then in lexicographic order,
     #e.g. Udo, Uno, Univ, University.
-    def _depthfirst_visit(self, current=None):
+    def depthfirst_visit(self, current=None):
         logging.info("traverse Trie in depth-first pre-order (visiting parent node before children), and write all words to the log.") 
         print "traverse Trie depth-first, and only print the longest words to the console."
         prefix=""
@@ -93,7 +102,7 @@ class Trie:
         return len(wordPrinted)    
 
                         
-    def _breadthfirst_visit(self):
+    def breadthfirst_visit(self):
         logging.info("traverse Trie breadth-first, printing all words to the log.") 
         current=self.root
         prefix=""
@@ -138,7 +147,7 @@ class Trie:
                         myQueue.append({'prefix':prefix+digit,'currentNode':myQueue[currPointer]['currentNode'].node_map[digit], 'visited':{}})
                         queuePointer += 1 
 
-    def _search(self, s):
+    def search(self, s):
         current=self.root
         u = unicode(s, "utf-8")
         for c in u:
@@ -154,7 +163,7 @@ class Trie:
             return current
     
         
-    def _search_returnpath(self, s):
+    def search_returnpath(self, s):
         current=self.root
         pathNodes = []
         u = unicode(s, "utf-8")
@@ -173,7 +182,7 @@ class Trie:
         
         
                         
-    def _delete(self, s):
+    def delete(self, s):
         current=self.root
         for c in unicode(s,"utf-8"):
             if current.node_map is None or c not in current.node_map:
@@ -190,9 +199,9 @@ class Trie:
 
             
             
-    def _clean_delete(self, s):
+    def clean_delete(self, s):
         
-        foundList = self._search_returnpath(s)
+        foundList = self.search_returnpath(s)
         
         if foundList is None:
             return False
@@ -204,7 +213,7 @@ class Trie:
         logging.debug("deleted word at "+str(foundList[len(foundList)-1]['currentNode']))        
             
         for found in reversed(foundList):
-            if self._depthfirst_visit(found['currentNode'])<1:
+            if self.depthfirst_visit(found['currentNode'])<1:
                 if toDelete is not None and toDelete['currentChar'] in found['currentNode'].node_map:
                     logging.debug("clean_delete for node:"+str(toDelete['currentNode']))
                     del found['currentNode'].node_map[toDelete['currentChar']]
@@ -212,18 +221,18 @@ class Trie:
         
     #No need to use recursion
     #think about returning None if s wasn't already a word or returning TrieNode reference if s was already a node
-    def _insert(self, s):
+    def insert(self, s):
         current=self.root
         for c in unicode(s, "utf-8"):
             logging.debug("scanning input: char ["+c+"]...")
             if current.node_map is None:
                 logging.debug("current node "+str(current)+" has no map")
-                current = Trie.TrieNode(False, {' ':Trie.TrieNode(False, {})})
+                current = TrieNode(False, {' ':TrieNode(False, {})})
             if c not in current.node_map:
                 logging.debug("--> "+c+" not found, adding new node...")
-                current.node_map[c]=Trie.TrieNode(False, {' ':Trie.TrieNode(False, {})})
+                current.node_map[c]=TrieNode(False, {' ':TrieNode(False, {})})
                 logging.debug(str(current) + " has "+str(len(current.node_map))+" children")
-                self.num_nodes += 1
+                self._num_nodes += 1
             logging.debug("current pointed to "+str(current)+"...")
             current=current.node_map[c]
             logging.debug("now, current points to "+str(current)+"!")
@@ -232,7 +241,9 @@ class Trie:
             current.is_word=True
             return False
         else:
+            logging.warning("I've seen this word ("+s+") before!")
             return True
+    
             
 """
 depthfirst_visit prints to console only the longest words that are not prefixes of other words in the trie.  On the other hand, depthfirst_visit writes to the log all words in pre-order.  Can longest words be printed from a breadth-first visit?  Another name question: are strings with whitespace in them words?  Should I call is_word() "is_word()", or something else? 

@@ -18,6 +18,8 @@ lib64/
 parts/
 sdist/
 var/
+logs/
+*.pickle.test
 *.egg-info/
 .installed.cfg
 *.egg
