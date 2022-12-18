@@ -32,7 +32,7 @@ class WordReverser():
             i+=1
             j-=1
             
-        print "input reversed as: " + " ".join(self.array)
+        print ("input reversed as: " + " ".join(self.array))
                 
     def _test(self,expected_string):
         expected_array = WordReverser.as_words(expected_string)
@@ -47,14 +47,14 @@ class WordReverser():
 
 """main() is test code for WordReverser.py."""        
 def main():
-    print "WordReverser.py takes a string input and reverses the words (white-space delimited strings)."
+    print ("WordReverser.py takes a string input and reverses the words (white-space delimited strings).")
     
     my_reversed = WordReverser("Angel loves Eric madly")
     expected = "madly Eric loves Angel"
     
     if not my_reversed._test(expected):
-        print "test[0]: words in string not reversed as ",
-        print expected
+        print ("test[0]: words in string not reversed as "),
+        print (expected)
     
 
 if __name__ == '__main__':
